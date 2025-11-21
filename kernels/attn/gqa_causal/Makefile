@@ -1,6 +1,5 @@
 # Compiler
 GPU_TARGET=CDNA3
-THUNDERKITTENS_ROOT ?= ../../..
 
 TARGET=tk_kernel
 # SRC=kernel.cpp
@@ -32,7 +31,7 @@ endif
 ROCM_INSTALL_DIR := $(ROCM_PATH)
 HIP_INCLUDE_DIR  := $(ROCM_INSTALL_DIR)/include/hip
 
-HIPCXX=/opt/rocm/hip/bin/hipcc
+HIPCXX ?= $(ROCM_INSTALL_DIR)/bin/hipcc
 
 # Compiler flags based on GPU target
 ifeq ($(GPU_TARGET),CDNA2)
@@ -46,7 +45,7 @@ endif
 # Common variables and flags
 CXX_STD   := c++20
 ICXXFLAGS := -std=$(CXX_STD)
-ICPPFLAGS := -I${THUNDERKITTENS_ROOT}/include -I$(HIP_INCLUDE_DIR) -I$(ROCM_INSTALL_DIR)/include
+ICPPFLAGS := -I${THUNDERKITTENS_ROOT}/include -I$(HIP_INCLUDE_DIR)
 ILDFLAGS  :=
 ILDLIBS   :=
 
