@@ -24,8 +24,10 @@
 
 #if __has_include(<hip_fp8.h>)
 #include <hip_fp8.h>
-#else
+#define KITTENS_HAS_FP8
+#elif __has_include(<hip/hip_fp8.h>)
 #include <hip/hip_fp8.h>
+#define KITTENS_HAS_FP8
 #endif
 #include <hip/hip_runtime.h>
 #include <string>
@@ -50,6 +52,7 @@ using bf16_2 = __hip_bfloat162;
  * @brief Packed word of two half-precision floating-point values.
  */
 using half_2 = __half2;
+#ifdef KITTENS_HAS_FP8
 #ifdef KITTENS_CDNA4
 /**
  * @brief float8 floating-point type.
@@ -76,6 +79,12 @@ using fp8e4m3_2 = __hip_fp8x2_e4m3_fnuz;
  * @brief Packed word of four float8 floating-point values.
  */
 using fp8e4m3_4 = __hip_fp8x4_e4m3_fnuz;
+#endif
+#else
+// Dummy types for when FP8 headers are missing
+struct fp8e4m3 {};
+struct fp8e4m3_2 {};
+struct fp8e4m3_4 {};
 #endif
 
 namespace ducks {
@@ -158,6 +167,7 @@ template<> struct constants<half_2> {
     static __device__ inline constexpr half_2 pos_infty() { return std::bit_cast<half_2>(uint32_t(0x7C007C00)); }
     static __device__ inline constexpr half_2 neg_infty() { return std::bit_cast<half_2>(uint32_t(0xFC00FC00)); }
 };
+#ifdef KITTENS_HAS_FP8
 template<> struct constants<fp8e4m3> {
     static __device__ inline constexpr fp8e4m3 zero() { return std::bit_cast<fp8e4m3>(uint8_t(0x00)); }
     static __device__ inline constexpr fp8e4m3 one() { return std::bit_cast<fp8e4m3>(uint8_t(0x38)); }
@@ -170,6 +180,7 @@ template<> struct constants<fp8e4m3_4> {
     static __device__ inline constexpr fp8e4m3_4 zero() { return std::bit_cast<fp8e4m3_4>(uint32_t(0x00000000)); }
     static __device__ inline constexpr fp8e4m3_4 one() { return std::bit_cast<fp8e4m3_4>(uint32_t(0x38383838)); }
 };
+#endif
 template<> struct constants<int> {
     static __device__ inline constexpr int zero()      { return 0; }
     static __device__ inline constexpr int ones()       { return 1; }
@@ -253,6 +264,7 @@ template<> struct packing<float4> {
 template<> struct packing<int4> {
     static __host__ __device__ inline constexpr int num() { return 4; }
 };
+#ifdef KITTENS_HAS_FP8
 template<> struct packing<fp8e4m3> {
     static __host__ __device__ inline constexpr int num() { return 1; }
     using unpacked_type = fp8e4m3;
@@ -263,6 +275,7 @@ template<> struct packing<fp8e4m3_4> {
     using unpacked_type = fp8e4m3;
     using packed_type = fp8e4m3_4;
 };
+#endif
 
 /**
  * @brief Provides templated functionality to convert between different types.
@@ -358,6 +371,7 @@ template<> struct convertor<half_2, bf16_2> {
         return __float22half2_rn(__bfloat1622float2(u));
     }
 };
+#ifdef KITTENS_HAS_FP8
 template<> struct convertor<fp8e4m3_4, float4> {
     static __host__ __device__ inline fp8e4m3_4 convert(const float4& u) {
         return fp8e4m3_4(u);
@@ -390,5 +404,6 @@ template<> struct convertor<float, fp8e4m3> {
         return float(u);
     }
 };
+#endif
 }
 }
