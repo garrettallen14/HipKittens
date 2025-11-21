@@ -1,4 +1,4 @@
-HIPCC=/opt/rocm/bin/hipcc
+HIPCC=/opt/rocm/hip/bin/hipcc
 ARCH=gfx942
 
 all: hello_hip

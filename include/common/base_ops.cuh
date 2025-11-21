@@ -122,15 +122,15 @@ template<> __device__ inline half_2 exp::op<half_2>(const half_2 &x) { return h2
 // Force hardware v_exp_f32 for float
 template<>
 __device__ inline float exp2::op<float>(const float &x) {
-    return __builtin_amdgcn_exp2f(x);  // Emits v_exp_f32_e32
+    return exp2f(x);  // Emits v_exp_f32_e32
 }
 
 // Force hardware v_exp_f32 for float2
 template<>
 __device__ inline float2 exp2::op<float2>(const float2 &x) {
     return {
-        __builtin_amdgcn_exp2f(x.x),
-        __builtin_amdgcn_exp2f(x.y)
+        exp2f(x.x),
+        exp2f(x.y)
     };
 }
 

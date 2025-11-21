@@ -46,7 +46,13 @@ __device__ static inline void swap_layout(rt<T, _height, _width, layout1, shape1
                         // second operand (one row is 16 lanes).
                         #pragma unroll
                         for (int k = 0; k < 2; k++) {
-                            uint2_t res = __builtin_amdgcn_permlane16_swap(*reinterpret_cast<const uint32_t *>(&src.tiles[i][j * 2].data[k]), *reinterpret_cast<const uint32_t *>(&src.tiles[i][j * 2 + 1].data[k]), false, true);
+                            uint2_t res;
+                            res.x = __builtin_amdgcn_permlane16(*reinterpret_cast<const uint32_t *>(&src.tiles[i][j * 2].data[k]),
+                                                                *reinterpret_cast<const uint32_t *>(&src.tiles[i][j * 2].data[k]),
+                                                                -1, -1, false, true);
+                            res.y = __builtin_amdgcn_permlane16(*reinterpret_cast<const uint32_t *>(&src.tiles[i][j * 2 + 1].data[k]),
+                                                                *reinterpret_cast<const uint32_t *>(&src.tiles[i][j * 2 + 1].data[k]),
+                                                                -1, -1, false, true);
                             *reinterpret_cast<uint32_t *>(&dst.tiles[i][j].data[k]) = res.x;
                             *reinterpret_cast<uint32_t *>(&dst.tiles[i][j].data[k + 2]) = res.y;
                         }

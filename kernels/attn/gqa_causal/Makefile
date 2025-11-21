@@ -32,7 +32,7 @@ endif
 ROCM_INSTALL_DIR := $(ROCM_PATH)
 HIP_INCLUDE_DIR  := $(ROCM_INSTALL_DIR)/include/hip
 
-HIPCXX ?= $(ROCM_INSTALL_DIR)/bin/hipcc
+HIPCXX=/opt/rocm/hip/bin/hipcc
 
 # Compiler flags based on GPU target
 ifeq ($(GPU_TARGET),CDNA2)

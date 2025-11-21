@@ -17,7 +17,7 @@ __device__ static inline void mfma161632(      float2 (&D)[2],
     
     typedef __attribute__((__vector_size__(8 * sizeof(__fp16)))) __fp16 fp16x8_t;
     typedef __attribute__((__vector_size__(4 * sizeof(float)))) float floatx4_t;
-    *(floatx4_t*)D = __builtin_amdgcn_mfma_f32_16x16x32_f16(
+    *(floatx4_t*)D = __builtin_amdgcn_mfma_f32_16x16x32f16(
         (*(fp16x8_t*)A),
         (*(fp16x8_t*)B),
         *(floatx4_t*)C,
@@ -32,7 +32,7 @@ __device__ static inline void mfma161632(      float2 (&D)[2],
 
     typedef __attribute__((__vector_size__(8 * sizeof(__bf16)))) __bf16 bf16x8_t;
     typedef __attribute__((__vector_size__(4 * sizeof(float)))) float floatx4_t;
-    *(floatx4_t*)D = __builtin_amdgcn_mfma_f32_16x16x32_bf16(
+    *(floatx4_t*)D = __builtin_amdgcn_mfma_f32_16x16x32bf16(
         (*(bf16x8_t*)A),
         (*(bf16x8_t*)B),
         *(floatx4_t*)C,
@@ -47,7 +47,7 @@ __device__ static inline void mfma323216(      float2 (&D)[8],
     typedef __attribute__((__vector_size__(8 * sizeof(__bf16)))) __bf16 bf16x8_t;
     typedef __attribute__((__vector_size__(16 * sizeof(float)))) float floatx16_t;
 
-    *(floatx16_t*)D = __builtin_amdgcn_mfma_f32_32x32x16_bf16(
+    *(floatx16_t*)D = __builtin_amdgcn_mfma_f32_32x32x16bf16(
         *(bf16x8_t*)(A),
         *(bf16x8_t*)(B),
         *(floatx16_t*)C,
@@ -63,7 +63,7 @@ __device__ static inline void mfma323216(      float2 (&D)[8],
     typedef __attribute__((__vector_size__(8 * sizeof(__fp16)))) __fp16 fp16x8_t;
     typedef __attribute__((__vector_size__(16 * sizeof(float)))) float floatx16_t;
     
-    *(floatx16_t*)D = __builtin_amdgcn_mfma_f32_32x32x16_f16(
+    *(floatx16_t*)D = __builtin_amdgcn_mfma_f32_32x32x16f16(
         *(fp16x8_t*)(A),
         *(fp16x8_t*)(B),
         *(floatx16_t*)C,
@@ -79,14 +79,14 @@ __device__ static inline void mfma323232(      float2 (&D)[8],
     typedef __attribute__((__vector_size__(8 * sizeof(__bf16)))) __bf16 bf16x8_t;
     typedef __attribute__((__vector_size__(16 * sizeof(float)))) float floatx16_t;
     
-    *(floatx16_t*)C = __builtin_amdgcn_mfma_f32_32x32x16_bf16(
+    *(floatx16_t*)C = __builtin_amdgcn_mfma_f32_32x32x16bf16(
         *(bf16x8_t*)A,
         *(bf16x8_t*)B,
         *(floatx16_t*)C,
         0, 0, 0
     );
 
-    *(floatx16_t*)D = __builtin_amdgcn_mfma_f32_32x32x16_bf16(
+    *(floatx16_t*)D = __builtin_amdgcn_mfma_f32_32x32x16bf16(
         *(bf16x8_t*)(A + 4),
         *(bf16x8_t*)(B + 4),
         *(floatx16_t*)C,
@@ -94,6 +94,7 @@ __device__ static inline void mfma323232(      float2 (&D)[8],
     );
 }
 
+#ifdef KITTENS_HAS_FP8
 __device__ static inline void mfma323264(      float2 (&D)[8],
                                          const fp8e4m3_4 (&A)[8],
                                          const fp8e4m3_4 (&B)[8],
@@ -123,6 +124,7 @@ __device__ static inline void mfma1616128(      float2 (&D)[2],
         0, 0, 0, 0, 0, 0
     )};
 }
+#endif
 
 
 /**
@@ -205,7 +207,12 @@ __device__ static inline void mma_ABt_base(rt_base<float, ducks::rt_layout::col,
                   A_rows == 32 && A_cols == 16 &&
                   B_rows == 32 && B_cols == 16 &&
                   std::is_same_v<C_shape, typename ducks::rt_shape::rt_32x32>) {
+    } else if constexpr (std::is_same_v<D_shape, typename ducks::rt_shape::rt_32x32> && 
+                  A_rows == 16 && A_cols == 32 &&
+                  B_rows == 32 && B_cols == 16 &&
+                  std::is_same_v<C_shape, typename ducks::rt_shape::rt_32x32>) {
         mfma323216(d.data, a.data, b.data, c.data);
+#ifdef KITTENS_HAS_FP8
     } else if constexpr (std::is_same_v<D_shape, typename ducks::rt_shape::rt_16x16> &&
                   A_rows == 16 && A_cols == 128 &&
                   B_rows == 16 && B_cols == 128 &&
@@ -216,6 +223,7 @@ __device__ static inline void mma_ABt_base(rt_base<float, ducks::rt_layout::col,
                   B_rows == 32 && B_cols == 64 &&
                   std::is_same_v<C_shape, typename ducks::rt_shape::rt_32x32>) {
         mfma323264(d.data, a.data, b.data, c.data);
+#endif
     } else {
         static_assert(false, "Unsupported shape combination");
     }
@@ -393,9 +401,12 @@ __device__ static inline void mma_ABt(D &d,
         (std::is_same_v<typename D::T, float> && std::is_same_v<typename A::T, bf16> &&
             std::is_same_v<typename B::T, bf16> && std::is_same_v<typename C::T, float>) ||
         (std::is_same_v<typename D::T, half> && std::is_same_v<typename A::T, half> &&
-            std::is_same_v<typename B::T, half> && std::is_same_v<typename C::T, half>) ||
-        (std::is_same_v<typename D::T, float> && std::is_same_v<typename A::T, fp8e4m3> &&
+        (std::is_same_v<typename D::T, half> && std::is_same_v<typename A::T, half> &&
+            std::is_same_v<typename B::T, half> && std::is_same_v<typename C::T, half>)
+#ifdef KITTENS_HAS_FP8
+        || (std::is_same_v<typename D::T, float> && std::is_same_v<typename A::T, fp8e4m3> &&
             std::is_same_v<typename B::T, fp8e4m3> && std::is_same_v<typename C::T, float>)
+#endif
     );
 
     #pragma unroll

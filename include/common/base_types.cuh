@@ -226,13 +226,13 @@ template<> struct packing<half> {
     static __host__ __device__ inline constexpr int num() { return 1; }
     using unpacked_type = half;
     using packed_type = half_2;
-    static __device__ inline constexpr half_2 pack(const half &i) { return half_2{i, i}; }
+    static __device__ inline half_2 pack(const half &i) { return half_2{i, i}; }
 };
 template<> struct packing<half_2> {
     static __host__ __device__ inline constexpr int num() { return 2; }
     using unpacked_type = half;
     using packed_type = half_2;
-    static __device__ inline constexpr half_2 pack(const half &i) { return half_2{i, i}; } // this replication makes code cleaner later.
+    static __device__ inline half_2 pack(const half &i) { return half_2{i, i}; } // this replication makes code cleaner later.
 };
 template<> struct packing<float> {
     static __host__ __device__ inline constexpr int num() { return 1; }
