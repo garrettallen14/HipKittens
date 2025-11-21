@@ -2,7 +2,7 @@
 #include <iostream>
 
 __global__ void hello_kernel() {
-    printf("Hello from GPU thread %d\n", threadIdx.x);
+    printf("Hello from GPU thread %d\n", (int)threadIdx.x);
 }
 
 int main() {
