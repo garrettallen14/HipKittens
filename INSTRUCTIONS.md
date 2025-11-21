@@ -8,6 +8,7 @@ Ensure you are on the `feature/mha-repro-extension` branch.
 
 ```bash
 git checkout feature/mha-repro-extension
+pip install pybind11
 ```
 
 ## 2. Reproduction (MHA Forward, Head Dim 128)

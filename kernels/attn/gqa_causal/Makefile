@@ -1,5 +1,5 @@
 # Compiler
-GPU_TARGET=CDNA4
+GPU_TARGET=CDNA3
 
 TARGET=tk_kernel
 # SRC=kernel.cpp
