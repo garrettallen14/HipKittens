@@ -46,7 +46,7 @@ endif
 # Common variables and flags
 CXX_STD   := c++20
 ICXXFLAGS := -std=$(CXX_STD)
-ICPPFLAGS := -I${THUNDERKITTENS_ROOT}/include -I$(HIP_INCLUDE_DIR)
+ICPPFLAGS := -I${THUNDERKITTENS_ROOT}/include -I$(HIP_INCLUDE_DIR) -I$(ROCM_INSTALL_DIR)/include
 ILDFLAGS  :=
 ILDLIBS   :=
 
