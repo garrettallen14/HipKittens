@@ -42,6 +42,9 @@ else ifeq ($(GPU_TARGET),CDNA4)
 HIPFLAGS+= -DKITTENS_CDNA4 --offload-arch=gfx950 -DHIP_ENABLE_WARP_SYNC_BUILTINS -ffast-math
 endif
 
+# Set THUNDERKITTENS_ROOT if not already set
+THUNDERKITTENS_ROOT ?= $(shell cd ../../.. && pwd)
+
 # Common variables and flags
 CXX_STD   := c++20
 ICXXFLAGS := -std=$(CXX_STD)
