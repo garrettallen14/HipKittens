@@ -18,9 +18,13 @@ CPPFLAGS += -DATTN_N=$(ATTN_N)
 CPPFLAGS += -DATTN_D=$(ATTN_D)
 
 ifeq ($(ATTN_D), 64)
-SRC=kernel_d64.cpp
+    ifeq ($(OPT), 1)
+        SRC=kernel_d64_optimized.cpp
+    else
+        SRC=kernel_d64.cpp
+    endif
 else ifeq ($(ATTN_D), 128)
-SRC=kernel.cpp
+    SRC=kernel.cpp
 endif
 
 # HIP variables
