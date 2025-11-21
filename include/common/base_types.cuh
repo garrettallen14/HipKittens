@@ -10,10 +10,23 @@
 
 #pragma once
 
+#if __has_include(<hip_bf16.h>)
 #include <hip_bf16.h>
+#else
+#include <hip/hip_bf16.h>
+#endif
+
+#if __has_include(<hip_fp16.h>)
 #include <hip_fp16.h>
+#else
+#include <hip/hip_fp16.h>
+#endif
+
+#if __has_include(<hip_fp8.h>)
 #include <hip_fp8.h>
+#else
 #include <hip/hip_fp8.h>
+#endif
 #include <hip/hip_runtime.h>
 #include <string>
 #include <bit>
