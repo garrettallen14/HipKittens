@@ -1,5 +1,6 @@
 # Compiler
 GPU_TARGET=CDNA3
+THUNDERKITTENS_ROOT ?= ../../..
 
 TARGET=tk_kernel
 # SRC=kernel.cpp
