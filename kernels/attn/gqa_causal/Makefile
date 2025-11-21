@@ -28,7 +28,7 @@ else ifeq ($(ATTN_D), 128)
 endif
 
 # HIP variables
-ROCM_INSTALL_DIR := $(ROCM_PATH)
+ROCM_INSTALL_DIR := $(if $(ROCM_PATH),$(ROCM_PATH),/opt/rocm)
 HIP_INCLUDE_DIR  := $(ROCM_INSTALL_DIR)/include/hip
 
 HIPCXX ?= $(ROCM_INSTALL_DIR)/bin/hipcc
